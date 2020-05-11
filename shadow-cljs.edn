@@ -1,0 +1,21 @@
+{:source-paths ["src"]
+
+ :dependencies [[binaryage/devtools "0.9.10"]
+                [proto-repl "0.3.1"]
+                [reagent "0.8.1"]
+                [cljsjs/highcharts "7.0.3-0"]]
+
+ :nrepl        {:port 3333}
+
+ :builds
+ {:app {:target :browser
+        :output-dir "public/js"
+        :asset-path "/js"
+
+        :modules
+        {:main
+         {:entries [app.core]}}
+
+        :devtools
+        {:http-root   "public"
+         :http-port   3000}}}}

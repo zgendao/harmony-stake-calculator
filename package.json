@@ -1,0 +1,23 @@
+{
+  "name": "stake-board",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "sc": "shadow-cljs",
+    "server": "shadow-cljs stop && shadow-cljs start",
+    "start": "shadow-cljs watch app",
+    "build": "yarn clean && shadow-cljs release app",
+    "test": "shadow-cljs compile test && node out/test.js",
+    "clean": "rm -rf public/js"
+  },
+  "dependencies": {
+    "chart.js": "2.9.3",
+    "create-react-class": "15.6.3",
+    "highcharts": "^8.1.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
+  },
+  "devDependencies": {
+    "shadow-cljs": "2.8.95"
+  }
+}
