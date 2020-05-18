@@ -5,10 +5,11 @@
 (def amount (atom 1))
 
 (defn chart-data []
-  (reduce
-   (fn [v r] (conj v (* (last v) 1.2)))
-   [@amount]
-   (range 9)))
+  (let [multiplier 1.2 years 10]
+    (reduce
+     (fn [v r] (conj v (* (last v) multiplier)))
+     [@amount]
+     (range (- years 1)))))
 
 (defn chart-component []
   (let [chartData {:xAxis {:categories [1 2 3 4 5 6 7 8 9 10]
@@ -22,7 +23,7 @@
                    :title {:style {:display "none"}}}]
     (.chart highcharts "rev-chartjs" (clj->js chartData))))
 
-(defn chart []
+(defn stake-chart []
   (fn []
     (reagent/create-class
      {:component-did-mount  #(chart-component)
@@ -33,11 +34,15 @@
                              [:div#rev-chartjs {:style {:width "600px" :height "360px"}}])})))
 
 (defn app []
+  ;(let [restake? (.-checked (.getElementById js/document "autorestake"))]
   [:div {:style {:display "flex" :justify-content "center"}}
    [:form
     [:h3 "Starter stake:"]
     [:input {:type "number"
              :min 1
              :value @amount
-             :on-change #(reset! amount (js/parseInt (-> % .-target .-value)))}]]
-   [chart]])
+             :on-change #(reset! amount (js/parseInt (-> % .-target .-value)))}]
+    [:div>label.switch
+     [:input#autorestake {:type "checkbox"}]
+     [:span.slider.round]]]
+   [stake-chart]])
