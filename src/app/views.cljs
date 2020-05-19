@@ -1,8 +1,7 @@
 (ns app.views
   (:require [reagent.core :as reagent :refer [atom]]
             ["highcharts" :as highcharts]
-            [goog.string :as gstring :refer [format]]
-            [goog.string.format]))
+            [goog.string :as gstring :refer [format]]))
 
 (def api (atom {:one-price 0.00035
                 :network-stake 550000000}))
@@ -58,52 +57,50 @@
 
 (defn app []
   ;restake? (.-checked (.getElementById js/document "autorestake"))]
-  [:div {:style {:display "flex" :justify-content "center"}}
-   [:form
-    [:h2 "Staking settings"]
-    [:div
-     [:input {:type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
-     [:input {:type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]
-     [:span (@state :type)]]
-    [num-input "Stake (ONE)" :stake]
-    [num-input "Staking Time (Months)" :time]
-    [:div>label.switch
-     [:input#autorestake {:type "checkbox"}]
-     [:span.slider.round]]
-    [:h3 "Advanced"]
-    [num-input "Fee (%)" :fee]
-    [num-input "Delegated (ONE)" :delegated]
-    [num-input "Uptime (AVG) (%)" :uptime]
-    [num-input "Effective Median Stake (ONE)" :median-stake]
-    [num-input "Price Increase (Year) (%)" :price-inc]
-    [num-input "Total Stake (ONE)" :total-stake]]
+  (let [one-price (@api :one-price)
+        network-stake (@api :network-stake)
+        yearly-issuance 441000000
 
-   (let [one-price (@api :one-price)
-         network-stake (@api :network-stake)
-         yearly-issuance 441000000
+        fee (if (= (@state :type) "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
+        network-share (/ (* fee (@state :stake)) network-stake)
+        dinc (/ (* yearly-issuance network-share) 365)
+        minc (/ (* yearly-issuance network-share) 12)
+        yinc (* yearly-issuance network-share)
+        holding (@state :stake)
+        reward-value (* minc (@state :time))
+        yrate (/ yinc (@state :stake))
+        mrate (/ minc (@state :stake))
+        reward-rate (/ reward-value (@state :stake))
+        reward-frequency 0
 
-         fee (if (= (@state :type) "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
-         network-share (/ (* fee (@state :stake)) network-stake)
-         dinc (/ (* yearly-issuance network-share) 365)
-         minc (/ (* yearly-issuance network-share) 12)
-         yinc (* yearly-issuance network-share)
-         holding (@state :stake)
-         reward-value (* minc (@state :time))
-         yrate (/ yinc (@state :stake))
-         mrate (/ minc (@state :stake))
-         reward-rate (/ reward-value (@state :stake))
-         reward-frequency 0
-
-         dinc (if (< 100 dinc) (format "%.0f" dinc) (format "%.2f" dinc))
-         minc (if (< 100 minc) (format "%.0f" minc) (format "%.2f" minc))
-         yinc (if (< 100 yinc) (format "%.0f" yinc) (format "%.2f" yinc))
-         reward-rate (format "%.2f" (* 100 reward-rate))
-         yrate (format "%.2f" (* 100 yrate))
-         network-share (format "%.4f" (* 100 network-share))
-         reward-value (if (< 100 reward-value) (format "%.0f" reward-value) (format "%.2f" reward-value))]
+        dinc (if (< 100 dinc) (format "%.0f" dinc) (format "%.2f" dinc))
+        minc (if (< 100 minc) (format "%.0f" minc) (format "%.2f" minc))
+        yinc (if (< 100 yinc) (format "%.0f" yinc) (format "%.2f" yinc))
+        reward-rate (format "%.2f" (* 100 reward-rate))
+        yrate (format "%.2f" (* 100 yrate))
+        network-share (format "%.4f" (* 100 network-share))
+        reward-value (if (< 100 reward-value) (format "%.0f" reward-value) (format "%.2f" reward-value))]
+    [:div {:style {:display "flex" :justify-content "center"}}
+     [:form
+      [:h2 "Staking settings"]
+      [:div
+       [:input {:type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
+       [:input {:type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]
+       [:span (@state :type)]]
+      [num-input "Stake (ONE)" :stake]
+      [num-input "Staking Time (Months)" :time]
+      [:div>label.switch
+       [:input#autorestake {:type "checkbox"}]
+       [:span.slider.round]]
+      [:h3 "Advanced"]
+      [num-input "Fee (%)" :fee]
+      [num-input "Delegated (ONE)" :delegated]
+      [num-input "Uptime (AVG) (%)" :uptime]
+      [num-input "Effective Median Stake (ONE)" :median-stake]
+      [num-input "Price Increase (Year) (%)" :price-inc]
+      [num-input "Total Stake (ONE)" :total-stake]]
      [:div
       [:h3 "Earnings"]
-      [:p (str fee)]
       [stake-chart mrate]
       [:p "Daily Income: " dinc]
       [:p "Monthly Income: " minc]
@@ -113,4 +110,4 @@
       [:p "Network Share: " network-share "%"]
       [:p "Current Holdings: " holding]
       [:p "Total Rewards Value: " reward-value]
-      [:p "Reward Frequency: " reward-frequency]])])
+      [:p "Reward Frequency: " reward-frequency]]]))
