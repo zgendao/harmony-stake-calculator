@@ -11,10 +11,10 @@
     "clean": "rm -rf public/js"
   },
   "dependencies": {
+    "create-react-class": "^15.6.3",
     "highcharts": "^8.1.0",
-    "create-react-class": "15.6.3",
-    "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
     "shadow-cljs": "2.8.95"

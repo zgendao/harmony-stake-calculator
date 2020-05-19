@@ -44,16 +44,16 @@
       :display-name        "chartjs-component"
       :reagent-render      (fn []
                              (@state :stake)
-                             [:div#rev-chartjs {:style {:width "600px" :height "360px"}}])})))
+                             [:div#rev-chartjs {:style {:width "100%" :height "100%"}}])})))
 
 (defn num-input [label value]
   (fn []
     [:div
-     [:label label]
+     [:label label
      [:input {:type "number"
               :min 1
               :value (@state value)
-              :on-change #(swap! state assoc value (js/parseInt (-> % .-target .-value)))}]]))
+              :on-change #(swap! state assoc value (js/parseInt (-> % .-target .-value)))}]]]))
 
 (defn app []
   ;restake? (.-checked (.getElementById js/document "autorestake"))]
@@ -80,34 +80,56 @@
         yrate (format "%.2f" (* 100 yrate))
         network-share (format "%.4f" (* 100 network-share))
         reward-value (if (< 100 reward-value) (format "%.0f" reward-value) (format "%.2f" reward-value))]
-    [:div {:style {:display "flex" :justify-content "center"}}
-     [:form
-      [:h2 "Staking settings"]
-      [:div
-       [:input {:type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
-       [:input {:type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]
-       [:span (@state :type)]]
-      [num-input "Stake (ONE)" :stake]
-      [num-input "Staking Time (Months)" :time]
-      [:div>label.switch
-       [:input#autorestake {:type "checkbox"}]
-       [:span.slider.round]]
-      [:h3 "Advanced"]
-      [num-input "Fee (%)" :fee]
-      [num-input "Delegated (ONE)" :delegated]
-      [num-input "Uptime (AVG) (%)" :uptime]
-      [num-input "Effective Median Stake (ONE)" :median-stake]
-      [num-input "Price Increase (Year) (%)" :price-inc]
-      [num-input "Total Stake (ONE)" :total-stake]]
-     [:div
-      [:h3 "Earnings"]
-      [stake-chart mrate]
-      [:p "Daily Income: " dinc]
-      [:p "Monthly Income: " minc]
-      [:p "Yearly Income: " yinc]
-      [:p "Total Reward Rate: " reward-rate "%"]
-      [:p "Yearly Reward Rate: " yrate "%"]
-      [:p "Network Share: " network-share "%"]
-      [:p "Current Holdings: " holding]
-      [:p "Total Rewards Value: " reward-value]
-      [:p "Reward Frequency: " reward-frequency]]]))
+
+    [:div.container
+      [:h2.title "Staking settings"]
+      [:div#settings.card
+        [:form
+          [:div
+            [:input {:type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
+            [:input {:type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]
+            [:span (@state :type)]]
+          [num-input "Stake (ONE)" :stake "full"]
+          [num-input "Staking Time (Months)" :time]
+          [:div>label.switch "Auto restake"
+            [:input#autorestake {:type "checkbox"}]
+            [:span.slider]]
+          [:h3.title "Advanced"]
+          [num-input "Fee (%)" :fee]
+          [num-input "Delegated (ONE)" :delegated]
+          [num-input "Uptime (AVG) (%)" :uptime]
+          [num-input "Effective Median Stake (ONE)" :median-stake]
+          [num-input "Price Increase (Year) (%)" :price-inc]
+          [num-input "Total Stake (ONE)" :total-stake]]]
+      [:h2.title "Earnings"]
+      [:div#earnings_chart.card
+        [:div
+          [stake-chart mrate]]
+        [:div.dataBlock
+          [:p "Daily Income"]
+          [:strong "$" dinc]]
+        [:div.dataBlock
+          [:p "Monthly Income"]
+          [:strong "$" minc]]
+        [:div.dataBlock
+          [:p "Yearly Income"]
+          [:strong "$" yinc]]]
+      [:div#earnings_more.card
+        [:div.dataBlock
+        [:p "Total Reward Rate"]
+        [:strong reward-rate "%"]]
+        [:div.dataBlock
+        [:p "Yearly Reward Rate"]
+        [:strong yrate "%"]]
+        [:div.dataBlock
+        [:p "Network Share"]
+        [:strong network-share "%"]]
+        [:div.dataBlock
+        [:p "Current Holdings"]
+        [:strong "$" holding]]
+        [:div.dataBlock
+        [:p "Total Rewards Value"]
+        [:strong "$" reward-value]]
+        [:div.dataBlock
+        [:p "Reward Frequency"]
+        [:strong reward-frequency " days"]]]]))
