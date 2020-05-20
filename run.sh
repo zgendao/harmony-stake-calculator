@@ -1,2 +1,3 @@
 #!/bin/bash
-npm i && yarn build
+npm i
+yarn build
