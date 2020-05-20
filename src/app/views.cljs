@@ -3,7 +3,7 @@
             ["highcharts" :as highcharts]
             [goog.string :as gstring :refer [format]]))
 
-(def api (atom {:one-price 0.00035
+(def api (atom {:one-price 0.0035
                 :network-stake 550000000}))
 
 (def state (atom {:type "delegator"
@@ -50,10 +50,15 @@
   (fn []
     [:div
      [:label label
-     [:input {:type "number"
-              :min 1
-              :value (@state value)
-              :on-change #(swap! state assoc value (js/parseInt (-> % .-target .-value)))}]]]))
+      [:input {:type "number"
+               :min 1
+               :value (@state value)
+               :on-change #(swap! state assoc value (js/parseInt (-> % .-target .-value)))}]]]))
+
+(defn vformat [value]
+  (if (< 100 value) (format "%.0f" value) (format "%.2f" value)))
+(defn pformat [percent]
+  (format "%.2f" (* 100 percent)))
 
 (defn app []
   ;restake? (.-checked (.getElementById js/document "autorestake"))]
@@ -73,63 +78,70 @@
         reward-rate (/ reward-value (@state :stake))
         reward-frequency 0
 
-        dinc (if (< 100 dinc) (format "%.0f" dinc) (format "%.2f" dinc))
-        minc (if (< 100 minc) (format "%.0f" minc) (format "%.2f" minc))
-        yinc (if (< 100 yinc) (format "%.0f" yinc) (format "%.2f" yinc))
-        reward-rate (format "%.2f" (* 100 reward-rate))
-        yrate (format "%.2f" (* 100 yrate))
-        network-share (format "%.4f" (* 100 network-share))
-        reward-value (if (< 100 reward-value) (format "%.0f" reward-value) (format "%.2f" reward-value))]
+        dinc-usd (* one-price dinc)
+        minc-usd (* one-price minc)
+        yinc-usd (* one-price yinc)
+        holding-usd (* one-price holding)
+        reward-value-usd (* one-price reward-value)
 
-    [:div.container
+        dinc (vformat dinc) minc (vformat minc) yinc (vformat yinc) reward-value (vformat reward-value)
+        dinc-usd (vformat dinc-usd) minc-usd (vformat minc-usd) yinc-usd (vformat yinc-usd) reward-value-usd (vformat reward-value-usd)
+        reward-rate (pformat reward-rate) yrate (pformat yrate) network-share (pformat network-share)]
+    [:div
+     ;[:div.header {:style {:width "100vw" :height "80px" :background "white"}}]
+     [:div.container
       [:h2.title "Staking settings"]
       [:div#settings.card
-        [:form
-          [:div
-            [:input {:type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
-            [:input {:type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]
-            [:span (@state :type)]]
-          [num-input "Stake (ONE)" :stake "full"]
-          [num-input "Staking Time (Months)" :time]
-          [:div>label.switch "Auto restake"
-            [:input#autorestake {:type "checkbox"}]
-            [:span.slider]]
-          [:h3.title "Advanced"]
-          [num-input "Fee (%)" :fee]
-          [num-input "Delegated (ONE)" :delegated]
-          [num-input "Uptime (AVG) (%)" :uptime]
-          [num-input "Effective Median Stake (ONE)" :median-stake]
-          [num-input "Price Increase (Year) (%)" :price-inc]
-          [num-input "Total Stake (ONE)" :total-stake]]]
+       [:form
+        [:div
+         [:input {:type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
+         [:input {:type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]]
+        [num-input "Stake (ONE)" :stake "full"]
+        [num-input "Staking Time (Months)" :time]
+        [:div>label.switch "Auto restake"
+         [:input#autorestake {:type "checkbox"}]
+         [:span.slider]]
+        [:h3.title "Advanced"]
+        [num-input "Fee (%)" :fee]
+        [num-input "Delegated (ONE)" :delegated]
+        [num-input "Uptime (AVG) (%)" :uptime]
+        [num-input "Effective Median Stake (ONE)" :median-stake]
+        [num-input "Price Increase (Year) (%)" :price-inc]
+        [num-input "Total Stake (ONE)" :total-stake]]]
       [:h2.title "Earnings"]
       [:div#earnings_chart.card
-        [:div
-          [stake-chart mrate]]
-        [:div.dataBlock
-          [:p "Daily Income"]
-          [:strong "$" dinc]]
-        [:div.dataBlock
-          [:p "Monthly Income"]
-          [:strong "$" minc]]
-        [:div.dataBlock
-          [:p "Yearly Income"]
-          [:strong "$" yinc]]]
+       [:div
+        [stake-chart mrate]]
+       [:div.dataBlock
+        [:p "Daily Income"]
+        [:strong "$" dinc-usd]
+        [:p dinc " ONE"]]
+       [:div.dataBlock
+        [:p "Monthly Income"]
+        [:strong "$" minc-usd]
+        [:p minc " ONE"]]
+       [:div.dataBlock
+        [:p "Yearly Income"]
+        [:strong "$" yinc-usd]
+        [:p yinc " ONE"]]]
       [:div#earnings_more.card
-        [:div.dataBlock
+       [:div.dataBlock
         [:p "Total Reward Rate"]
         [:strong reward-rate "%"]]
-        [:div.dataBlock
+       [:div.dataBlock
         [:p "Yearly Reward Rate"]
         [:strong yrate "%"]]
-        [:div.dataBlock
+       [:div.dataBlock
         [:p "Network Share"]
         [:strong network-share "%"]]
-        [:div.dataBlock
+       [:div.dataBlock
         [:p "Current Holdings"]
-        [:strong "$" holding]]
-        [:div.dataBlock
+        [:strong "$" holding-usd]
+        [:p holding " ONE"]]
+       [:div.dataBlock
         [:p "Total Rewards Value"]
-        [:strong "$" reward-value]]
-        [:div.dataBlock
+        [:strong "$" reward-value-usd]
+        [:p reward-value " ONE"]]
+       [:div.dataBlock
         [:p "Reward Frequency"]
-        [:strong reward-frequency " days"]]]]))
+        [:strong reward-frequency " days"]]]]]))
