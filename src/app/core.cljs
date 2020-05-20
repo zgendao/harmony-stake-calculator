@@ -4,8 +4,7 @@
 
 (defn ^:dev/after-load start
   []
-  (r/render-component [views/app]
-                      (.getElementById js/document "app")))
+  (r/render-component [views/app] (.getElementById js/document "app")))
 
 (defn ^:export main
   []

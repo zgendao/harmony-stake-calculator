@@ -3,6 +3,7 @@
 :root {
   --text-light: grey;
   --border-color: rgb(199, 199, 199);
+  --primary-color: #00ADE8;
 }
 
 * {
@@ -87,7 +88,7 @@ h3 {
 #earnings_more .dataBlock {
   text-align: center;
   padding: 5px;
-  box-shadow: 1px 0 0 0 var(--border-color), 
+  box-shadow: 1px 0 0 0 var(--border-color),
               0 1px 0 0 var(--border-color);
 }
 
@@ -173,7 +174,7 @@ input[type="button"]:last-of-type {
   transition: .4s;
 }
 input:checked + .slider {
-  background-color: #000;
+  background-color: var(--primary-color);
 }
 input:checked + .slider:before {
   -webkit-transform: translateX(17px);
