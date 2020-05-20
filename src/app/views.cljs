@@ -1,7 +1,8 @@
 (ns app.views
   (:require [reagent.core :as reagent :refer [atom]]
             ["highcharts" :as highcharts]
-            [goog.string :as gstring :refer [format]]))
+            [goog.string :as gstring :refer [format]]
+            [goog.string.format]))
 
 (def api (atom {:one-price 0.00326
                 :network-stake 600000000}))
