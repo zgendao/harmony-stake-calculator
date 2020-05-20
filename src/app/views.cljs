@@ -3,8 +3,8 @@
             ["highcharts" :as highcharts]
             [goog.string :as gstring :refer [format]]))
 
-(def api (atom {:one-price 0.00328
-                :network-stake 730000000}))
+(def api (atom {:one-price 0.00326
+                :network-stake 600000000}))
 
 (def state (atom {:type "delegator"
                   :restake? false
@@ -16,7 +16,8 @@
                   :uptime 99.9
                   :median-stake 24000
                   :price-inc 10
-                  :total-stake 50000000}))
+                  :total-stake 60000000
+                  :navbar-open false}))
 
 (defn chart-data [tochart months]
   (let [multiplier (+ 1 (first tochart)) stake (@state :stake)]
@@ -52,10 +53,11 @@
                            @state
                            [:div#rev-chartjs {:style {:width "100%" :height "100%"}}])}))
 
-(defn num-input [label value]
+(defn num-input [label value disabled]
   [:div
    [:label label
     [:input {:type "number"
+             :disabled disabled
              :min 1
              :value (@state value)
              :on-change #(swap! state assoc value (js/parseInt (-> % .-target .-value)))}]]])
@@ -65,11 +67,20 @@
 (defn pformat [percent]
   (format "%.2f" (* 100 percent)))
 
-(defn header []
-  [:div {:style {:display "flex" :height "80px" :width "100vw" :background "white"}}
-   [:p "Project"]
-   [:p "Staking"]
-   [:p (str (@api :one-price))]])
+(defn navbar []
+  [:nav
+   [:div.container
+    [:div.navbar__brand
+     [:img {:src "./images/logo.png" :width "150px"}]
+     [:p "Calculator"]]
+    [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
+     [:a {:href "https://harmony.one/"} "PROJECT"]
+     [:a {:href "https://staking.harmony.one/"} "STAKING"]
+     [:p (str (@api :one-price)) "USD"]]
+    [:button.navbar__togglr {:on-click #(swap! state assoc :navbar-open (not (@state :navbar-open)))}
+     [:span.navbar__togglr__bars]
+     [:span.navbar__togglr__bars]
+     [:span.navbar__togglr__bars]]]])
 
 (defn dashboard []
   (let [one-price (@api :one-price)
@@ -81,67 +92,66 @@
         holding (@state :stake)
 
         first-m-inc (/ (* yearly-issuance network-share) 12)
-        mrate (/ first-first-m-inc (@state :stake))
+        m-rate (/ first-m-inc (@state :stake))
+        tochart [m-rate first-m-inc]
 
-        y-inc (* yearly-issuance network-share)
-        dinc (/ (* yearly-issuance network-share) 365)
+        y-inc (- (last (chart-data tochart 12)) holding)
+        m-inc (/ y-inc 12)
+        d-inc (/ y-inc 365)
 
-        yrate (/ yinc (@state :stake))
+        y-rate (/ y-inc (@state :stake))
 
-        reward-value (* minc (@state :time))
+        reward-value (* m-inc (@state :time))
         reward-rate (/ reward-value (@state :stake))
         reward-frequency 0
 
-        dinc-usd (* one-price dinc)
-        minc-usd (* one-price minc)
-        yinc-usd (* one-price yinc)
+        d-inc-usd (* one-price d-inc)
+        m-inc-usd (* one-price m-inc)
+        y-inc-usd (* one-price y-inc)
         holding-usd (* one-price holding)
-        reward-value-usd (* one-price reward-value)
-
-        tochart [mrate first-m-inc]]
-
-    [:div.container
+        reward-value-usd (* one-price reward-value)]
+    [:main.container
      [:h2.title "Staking settings"]
      [:div#settings.card
       [:form
        [:div
         [:input {:class [(when (= (@state :type) "delegator") "active")] :type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
         [:input {:class [(when (= (@state :type) "validator") "active")] :type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]]
-       [num-input "Stake (ONE)" :stake "full"]
+       [num-input "Stake (ONE)" :stake]
        [num-input "Staking Time (Months)" :time]
        [:div>label.switch "Auto restake"
         [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
         [:span.slider]]
        [:h3.title "Advanced"]
        [num-input "Fee (%)" :fee]
-       [num-input "Delegated (ONE)" :delegated]
-       [num-input "Uptime (AVG) (%)" :uptime]
-       [num-input "Effective Median Stake (ONE)" :median-stake]
-       [num-input "Price Increase (Year) (%)" :price-inc]
-       [num-input "Total Stake (ONE)" :total-stake]]]
+       [num-input "Delegated (ONE)" :delegated (when (= (@state :type) "delegator") "disabled")]
+       [num-input "Uptime (AVG) (%)" :uptime "disabled"]
+       [num-input "Effective Median Stake (ONE)" :median-stake "disabled"]
+       [num-input "Price Increase (Year) (%)" :price-inc "disabled"]
+       [num-input "Total Stake (ONE)" :total-stake "disabled"]]]
      [:h2.title "Earnings"]
      [:div#earnings_chart.card
       [:div
        [stake-chart tochart]]
       [:div.dataBlock
        [:p "Daily Income"]
-       [:strong "$" (vformat dinc-usd)]
-       [:p (vformat dinc) " ONE"]]
+       [:strong "$" (vformat d-inc-usd)]
+       [:p (vformat d-inc) " ONE"]]
       [:div.dataBlock
        [:p "Monthly Income"]
-       [:strong "$" (vformat minc-usd)]
-       [:p (vformat minc) " ONE"]]
+       [:strong "$" (vformat m-inc-usd)]
+       [:p (vformat m-inc) " ONE"]]
       [:div.dataBlock
        [:p "Yearly Income"]
-       [:strong "$" (vformat yinc-usd)]
-       [:p (vformat yinc) " ONE"]]]
+       [:strong "$" (vformat y-inc-usd)]
+       [:p (vformat y-inc) " ONE"]]]
      [:div#earnings_more.card
       [:div.dataBlock
        [:p "Total Reward Rate"]
        [:strong (pformat reward-rate) "%"]]
       [:div.dataBlock
        [:p "Yearly Reward Rate"]
-       [:strong (pformat yrate) "%"]]
+       [:strong (pformat y-rate) "%"]]
       [:div.dataBlock
        [:p "Network Share"]
        [:strong (pformat network-share) "%"]]
@@ -155,9 +165,9 @@
        [:p (vformat reward-value) " ONE"]]
       [:div.dataBlock
        [:p "Reward Frequency"]
-       [:strong reward-frequency " days"]]]]))
+       [:strong "- days"]]]]))
 
 (defn app []
   [:<>
-   [header]
+   [navbar]
    [dashboard]])
