@@ -9,6 +9,9 @@
 
  :builds
  {:app {:target :browser
+        :compiler-options
+        {:pseudo-names true
+         :pretty-print true}
         :output-dir "public/js"
         :asset-path "/js"
 
