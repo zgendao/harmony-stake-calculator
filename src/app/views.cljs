@@ -16,7 +16,8 @@
                   :uptime 99.9
                   :median-stake 24000
                   :price-inc 10
-                  :total-stake 50000000}))
+                  :total-stake 50000000
+                  :navbar-open false}))
 
 (defn chart-data [tochart]
   (let [multiplier (+ 1 (first tochart)) months (@state :time) stake (@state :stake)]
@@ -65,11 +66,20 @@
 (defn pformat [percent]
   (format "%.2f" (* 100 percent)))
 
-(defn header []
-  [:div {:style {:display "flex" :height "80px" :width "100vw" :background "white"}}
-   [:p "Project"]
-   [:p "Staking"]
-   [:p (str (@api :one-price))]])
+(defn navbar []
+  [:nav
+    [:div.container
+      [:div.navbar__brand
+        [:img {:src "./images/logo.png" :width "150px"}]
+        [:p "Calculator"]]
+      [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
+        [:a {:href "https://harmony.one/"} "PROJECT"]
+        [:a {:href "https://staking.harmony.one/"} "STAKING"]
+        [:p (str (@api :one-price)) "USD"]]
+      [:button.navbar__togglr {:on-click #(swap! state assoc :navbar-open (not (@state :navbar-open)))}
+        [:span.navbar__togglr__bars]
+        [:span.navbar__togglr__bars]
+        [:span.navbar__togglr__bars]]]])
 
 (defn dashboard []
   ;restake? (.-checked (.getElementById js/document "autorestake"))]
@@ -99,7 +109,7 @@
         dinc (vformat dinc) minc (vformat minc) yinc (vformat yinc) reward-value (vformat reward-value) holding (vformat holding)
         dinc-usd (vformat dinc-usd) minc-usd (vformat minc-usd) yinc-usd (vformat yinc-usd) reward-value-usd (vformat reward-value-usd) holding-usd (vformat holding-usd)
         reward-rate (pformat reward-rate) yrate (pformat yrate) network-share (pformat network-share)]
-    [:div.container
+    [:main.container
      [:h2.title "Staking settings"]
      [:div#settings.card
       [:form
@@ -158,5 +168,5 @@
 
 (defn app []
   [:<>
-   [header]
+   [navbar]
    [dashboard]])

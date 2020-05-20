@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Roboto:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap');
 
 :root {
   --text-light: grey;
@@ -17,13 +17,43 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+nav {
+  background-color: white;
+  box-shadow: 0 1px 0 0 var(--border-color);
+}
+nav div {
+  display: flex;
+  justify-content: space-between;
+}
+nav a, nav p {
+  margin: auto 20px;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: 'Quicksand';
+  font-weight: 600;
+  color: #555B68;
+}
+nav a {
+  color: var(--primary-color);
+}
+
+nav .navbar__brand img {
+  margin: auto 0;
+}
+nav .navbar__brand p {
+  font-weight: 600;
+  font-size: 23px;
+  margin: auto 0;
+  display: inline-flex;
+}
+nav .navbar__togglr {
+  display: none;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 2fr 3fr;
-  grid-template-rows: auto auto auto;
-  gap: 20px;
+  padding: 10px 0;
 }
 
 h2 {
@@ -36,7 +66,7 @@ h3 {
 .title {
   margin-bottom: 5px;
   text-align: center;
-  font-weight: 400;
+  font-weight: 500;
   font-family: 'Quicksand';
   color: var(--border-color);
 }
@@ -48,13 +78,20 @@ h3 {
   border-radius: 20px;
 }
 
+main {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  grid-template-rows: auto auto auto;
+  gap: 20px;
+}
+
 #settings {
   grid-column: 1;
   grid-row: 2/4;
 }
 #settings form {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 #settings form > div:nth-child(1),
@@ -67,7 +104,7 @@ h3 {
   grid-column: 2;
   grid-row: 2/3;
   display: grid;
-  grid-template-columns: auto min-content;
+  grid-template-columns: 1fr min-content;
   grid-template-rows: auto auto auto;
   gap: 10px 30px;
   align-items: center;
@@ -82,7 +119,8 @@ h3 {
   grid-column: 2;
   grid-row: 3/4;
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   overflow: hidden;
 }
 #earnings_more .dataBlock {
@@ -118,8 +156,9 @@ input {
   margin: 5px 0;
   outline: none;
 }
-input:focus {
+input:focus, input[type="button"].active {
   border-width: 1.5px;
+  border-color: var(--primary-color);
   margin: 4.5px -0.5px;
 }
 
@@ -128,19 +167,25 @@ input[type="button"] {
   background-color: white;
   border-radius: 0;
   cursor: pointer;
+  margin: 4.5px -0.5px;
 }
 input[type="button"]:first-of-type {
   border-radius: 15px 0 0 15px;
-  margin-right: -0.5px;
+  border-right-width: 1.5px;
+  border-right-color: var(--primary-color);
 }
 input[type="button"]:last-of-type {
   border-radius: 0 15px 15px 0;
-  margin-left: -0.5px;
+  border-left-width: 1.5px;
+  border-left-color: var(--primary-color);
+}
+input[type="button"].active {
+  border-color: var(--primary-color);
+  box-shadow: var(--primary-color);
 }
 
 .switch {
   position: relative;
-  display: inline-block;
 }
 .switch input {
   opacity: 0;

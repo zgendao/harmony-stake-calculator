@@ -1,0 +1,89 @@
+@media (max-width: 1500px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container {
+    max-width: 960px;
+  }
+}
+@media (max-width: 992px) {
+  .container {
+    max-width: 720px;
+  }
+  #earnings_chart {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 10px 30px;
+    align-items: center;
+  }
+  #earnings_chart > div:first-child {
+    grid-column: 1/4;
+    grid-row: 1;
+  }
+}
+@media (max-width: 767px) {
+  .container {
+    max-width: 540px;
+  }
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  
+  nav .container {
+    position: relative;
+    flex-direction: column;
+    padding: 10px;
+  }
+  nav .navbar__brand {
+    justify-content: left;
+  }
+  nav .collapse {
+    padding: 10px 0;
+    flex-direction: column;
+  }
+  nav a, nav p {
+    padding: 10px 0;
+  }
+    
+  nav .navbar__togglr {
+    display: block;
+    position: absolute;
+    right: 20px;
+    top: 25px;
+    background: none;
+    border: none;
+    outline: none;
+  }
+  nav .navbar__togglr__bars {
+    width: 16px;
+    height: 2px;
+    background-color: #555B68;
+    display: block;
+    border-radius: 10px;
+    transition: all 0.2s;
+    margin-top: 3px;
+  }
+  .u-hideOnMobile {
+    display: none !important;
+  }
+
+  #settings, #earnings_chart, #earnings_more {
+    grid-column: 1;
+    grid-row: unset;
+  }
+}
+
+@media (max-width: 575px) {
+  .container {
+    max-width: unset;
+  }
+
+  .card {
+    border-radius: 0;
+    padding: 10px 20px;
+  }
+}
