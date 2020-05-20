@@ -15,9 +15,7 @@
         :output-dir "public/js"
         :asset-path "/js"
 
-        :modules
-        {:main
-         {:entries [app.core]}}
+        :modules {:main {:init-fn app.core/main}}
 
         :devtools
         {:http-root   "public"
