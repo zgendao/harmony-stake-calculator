@@ -2,9 +2,6 @@
   .container {
     max-width: 1140px;
   }
-  #rev-chartjs {
-    height: 350px;
-  }
 }
 
 @media (max-width: 1200px) {
@@ -18,13 +15,18 @@
   }
   #earnings_chart {
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     gap: 10px 30px;
     align-items: center;
   }
-  #earnings_chart > div:first-child {
+  #earnings_chart .title {
     grid-column: 1/4;
-    grid-row: 1;
+  }
+  #earnings_chart__chartWrapper {
+    grid-column: 1/4;
+  }
+  #rev-chartjs {
+    height: 250px;
   }
 }
 @media (max-width: 767px) {
