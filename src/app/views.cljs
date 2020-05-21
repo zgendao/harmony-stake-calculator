@@ -62,7 +62,7 @@
     :display-name "chartjs-component"
     :reagent-render (fn []
                       @state
-                      [:div#rev-chartjs {:style {:width "100%" :height "100%"}}])}))
+                      [:div#rev-chartjs {:style {:width "100%" :height "350px"}}])}))
 
 (defn num-input [label value disabled class]
   [:div {:class class}
