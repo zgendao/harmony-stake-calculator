@@ -64,8 +64,8 @@
                       @state
                       [:div#rev-chartjs {:style {:width "100%" :height "100%"}}])}))
 
-(defn num-input [label value disabled]
-  [:div
+(defn num-input [label value disabled class]
+  [:div {:class class}
    [:label label
     [:input {:type "number"
              :disabled disabled
@@ -85,8 +85,8 @@
      [:img {:src "./images/logo.png" :width "150px"}]
      [:p "Calculator"]]
     [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
-     [:a {:href "https://harmony.one/" :target "_blank"} "PROJECT"]
-     [:a {:href "https://staking.harmony.one/" :target "_blank"} "STAKING"]
+     [:a {:href "https://harmony.one/"} "PROJECT"]
+     [:a {:href "https://staking.harmony.one/"} "STAKING"]
      [:p (format "%.6f" (@state :one-price)) " USD"]]
     [:button.navbar__togglr {:on-click #(swap! state assoc :navbar-open (not (@state :navbar-open)))}
      [:span.navbar__togglr__bars]
@@ -126,38 +126,47 @@
         future-holding-usd (* future-one-price holding)
         reward-value-usd (+ (* future-one-price reward-value) (- future-holding-usd holding-usd))]
     [:main.container
-     [:h2.title "Staking settings"]
      [:div#settings.card
+      [:h2.title "Staking settings"]
       [:form
        [:div
         [:input {:class [(when (= (@state :type) "delegator") "active")] :type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
         [:input {:class [(when (= (@state :type) "validator") "active")] :type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]]
-       [num-input "Stake (ONE)" :stake]
-       [num-input "Staking Time (Months)" :time]
+       [:div.u-fillLeft_fitRight
+        [:label "Stake"
+         [:input {:type "range"
+                  :min 1
+                  :max 1000000}]]
+        [:div.showUnit.showUnit--one
+         [:input {:type "number"
+                  :min 1
+                  :value (@state :stake)
+                  :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-:stake)))}]]]
+       [num-input "Staking Time" :time false "showUnit showUnit--months"]
        [:div>label.switch "Auto restake"
         [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
         [:span.slider]]
-       [:h3.title "Advanced"]
-       [num-input "Fee (%)" :fee]
-       [num-input "Delegated (ONE)" :delegated (when (= (@state :type) "delegator") "disabled")]
-       [num-input "Uptime (AVG) (%)" :uptime "disabled"]
-       [num-input "Effective Median Stake (ONE)" :median-stake "disabled"]
-       [num-input "Price Increase (Year) (%)" :price-inc]
-       [num-input "Total Stake (ONE)" :network-stake]]]
-     [:h2.title "Earnings"]
+       [:h3.title.title--secondary "Advanced"]
+       [num-input "Fee" :fee false "showUnit showUnit--percentage"]
+       [num-input "Delegated" :delegated (when (= (@state :type) "delegator") "disabled") "showUnit showUnit--one"]
+       [num-input "Uptime (AVG)" :uptime "disabled" "showUnit showUnit--percentage"]
+       [num-input "Effective Median Stake" :median-stake "disabled" "showUnit showUnit--one"]
+       [num-input "Price Increase (Year)" :price-inc false "showUnit showUnit--percentage"]
+       [num-input "Total Stake" :network-stake false "showUnit showUnit--one"]]]
      [:div#earnings_chart.card
-      [:div
+      [:h2.title "Earnings"]
+      [:div#earnings_chart__chartWrapper
        [stake-chart]]
       [:div.dataBlock
-       [:p "Daily Income (AVG)"]
+       [:p "Daily Income"]
        [:strong "$" (vformat d-inc-usd)]
        [:p (vformat d-inc) " ONE"]]
       [:div.dataBlock
-       [:p "Monthly Income (AVG)"]
+       [:p "Monthly Income"]
        [:strong "$" (vformat m-inc-usd)]
        [:p (vformat m-inc) " ONE"]]
       [:div.dataBlock
-       [:p "Yearly Income (AVG)"]
+       [:p "Yearly Income"]
        [:strong "$" (vformat y-inc-usd)]
        [:p (vformat y-inc) " ONE"]]]
      [:div#earnings_more.card
@@ -191,7 +200,6 @@
 
 (defn app []
   (request)
-  ;(post-request)
   [:<>
    [navbar]
    [dashboard]])

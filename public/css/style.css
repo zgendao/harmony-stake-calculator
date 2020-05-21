@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto:wght@400;500;700;900&display=swap');
 
 :root {
   --text-light: grey;
@@ -14,7 +14,7 @@ body {
   margin: 0;
   cursor: default;
   background-color: #f6f7fb;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Nunito', sans-serif;
 }
 
 nav {
@@ -27,9 +27,9 @@ nav div {
 }
 nav a, nav p {
   margin: auto 20px;
-  font-size: 18px;
+  font-size: 16px;
   text-decoration: none;
-  font-family: 'Quicksand';
+  font-family: 'Nunito', sans-serif;
   font-weight: 600;
   color: #555B68;
 }
@@ -56,19 +56,20 @@ nav .navbar__togglr {
   padding: 10px 0;
 }
 
-h2 {
-  font-size: 32px;
-}
-h3 {
-  font-size: 26px;
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  font-family: 'Nunito', sans-serif;
+  text-transform: uppercase;
+  color: var(--primary-color);
 }
 
-.title {
-  margin-bottom: 5px;
-  text-align: center;
-  font-weight: 500;
-  font-family: 'Quicksand';
-  color: var(--border-color);
+.title--secondary {
+  margin-top: 20px;
+  font-size: 16px;
 }
 
 .card {
@@ -95,7 +96,6 @@ main {
   gap: 10px;
 }
 #settings form > div:nth-child(1),
-#settings form > div:nth-child(2),
 #settings form > h3 {
   grid-column: 1/3;
 }
@@ -105,13 +105,20 @@ main {
   grid-row: 2/3;
   display: grid;
   grid-template-columns: 1fr min-content;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto auto auto auto;
   gap: 10px 30px;
   align-items: center;
 }
-#earnings_chart > div:first-child {
+#earnings_chart .title {
+  grid-column: 1/3;
+}
+#earnings_chart__chartWrapper {
   grid-column: 1;
-  grid-row: 1/4;
+  grid-row: 2/5;
+}
+#rev-chartjs {
+  width: 100%;
+  height: 100%;
 }
 
 #earnings_more {
@@ -130,99 +137,31 @@ main {
               0 1px 0 0 var(--border-color);
 }
 
+
+.u-fillLeft_fitRight {
+  grid-column: 1/3;
+  display: flex;
+  align-items: flex-end;
+}
+.u-fillLeft_fitRight label {
+  width: -webkit-fill-available;
+  margin-right: 15px;
+}
+.u-fillLeft_fitRight input[type="number"] {
+  width: 8em;
+}
+
+
 .dataBlock {
   white-space: nowrap;
 }
 .dataBlock strong {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 22px;
+  font-weight: 600;
 }
 .dataBlock p, label {
   margin: 5px 0;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-light);
-}
-
-input {
-  line-height: 2.8;
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  width: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: 15px;
-  padding: 0 15px;
-  margin: 5px 0;
-  outline: none;
-}
-input:focus, input[type="button"].active {
-  border-width: 1.5px;
-  border-color: var(--primary-color);
-  margin: 4.5px -0.5px;
-}
-
-input[type="button"] {
-  width: 50%;
-  background-color: white;
-  border-radius: 0;
-  cursor: pointer;
-  margin: 4.5px -0.5px;
-}
-input[type="button"]:first-of-type {
-  border-radius: 15px 0 0 15px;
-  border-right-width: 1.5px;
-  border-right-color: var(--primary-color);
-}
-input[type="button"]:last-of-type {
-  border-radius: 0 15px 15px 0;
-  border-left-width: 1.5px;
-  border-left-color: var(--primary-color);
-}
-input[type="button"].active {
-  border-color: var(--primary-color);
-  box-shadow: var(--primary-color);
-}
-
-.switch {
-  position: relative;
-}
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  width: 42px;
-  height: 23px;
-  cursor: pointer;
-  top: 20px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  border-radius: 15px;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  border-radius: 50%;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-input:checked + .slider {
-  background-color: var(--primary-color);
-}
-input:checked + .slider:before {
-  -webkit-transform: translateX(17px);
-  -ms-transform: translateX(17px);
-  transform: translateX(17px);
 }
