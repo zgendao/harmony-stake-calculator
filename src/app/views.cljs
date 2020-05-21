@@ -52,10 +52,10 @@
     :display-name        "chartjs-component"
     :reagent-render      (fn []
                            @state
-                           [:div#rev-chartjs {:style {:width "100%" :height "100%"}}])}))
+                           [:div#rev-chartjs])}))
 
-(defn num-input [label value disabled]
-  [:div
+(defn num-input [label value disabled class]
+  [:div {:class class}
    [:label label
     [:input {:type "number"
              :disabled disabled
@@ -112,27 +112,36 @@
         holding-usd (* one-price holding)
         reward-value-usd (* one-price reward-value)]
     [:main.container
-     [:h2.title "Staking settings"]
      [:div#settings.card
+     [:h2.title "Staking settings"]
       [:form
        [:div
         [:input {:class [(when (= (@state :type) "delegator") "active")] :type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
         [:input {:class [(when (= (@state :type) "validator") "active")] :type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]]
-       [num-input "Stake (ONE)" :stake]
-       [num-input "Staking Time (Months)" :time]
+       [:div.u-fillLeft_fitRight
+        [:label "Stake"
+          [:input {:type "range"
+                  :min 1
+                  :max 1000000}]]
+        [:div.showUnit.showUnit--one
+          [:input {:type "number"
+                  :min 1
+                  :value (@state :stake)
+                  :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-:stake)))}]]]
+       [num-input "Staking Time" :time false "showUnit showUnit--months"]
        [:div>label.switch "Auto restake"
         [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
         [:span.slider]]
-       [:h3.title "Advanced"]
-       [num-input "Fee (%)" :fee]
-       [num-input "Delegated (ONE)" :delegated (when (= (@state :type) "delegator") "disabled")]
-       [num-input "Uptime (AVG) (%)" :uptime "disabled"]
-       [num-input "Effective Median Stake (ONE)" :median-stake "disabled"]
-       [num-input "Price Increase (Year) (%)" :price-inc "disabled"]
-       [num-input "Total Stake (ONE)" :total-stake "disabled"]]]
-     [:h2.title "Earnings"]
+       [:h3.title.title--secondary "Advanced"]
+       [num-input "Fee" :fee false "showUnit showUnit--percentage"]
+       [num-input "Delegated" :delegated (when (= (@state :type) "delegator") "disabled") "showUnit showUnit--one"]
+       [num-input "Uptime (AVG)" :uptime "disabled" "showUnit showUnit--percentage"]
+       [num-input "Effective Median Stake" :median-stake "disabled" "showUnit showUnit--one"]
+       [num-input "Price Increase (Year)" :price-inc "disabled" "showUnit showUnit--percentage"]
+       [num-input "Total Stake" :total-stake "disabled" "showUnit showUnit--one"]]]
      [:div#earnings_chart.card
-      [:div
+     [:h2.title "Earnings"]
+      [:div#earnings_chart__chartWrapper
        [stake-chart tochart]]
       [:div.dataBlock
        [:p "Daily Income"]
