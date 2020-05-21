@@ -85,8 +85,8 @@
      [:img {:src "./images/logo.png" :width "150px"}]
      [:p "Calculator"]]
     [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
-     [:a {:href "https://harmony.one/"} "PROJECT"]
-     [:a {:href "https://staking.harmony.one/"} "STAKING"]
+     [:a {:href "https://harmony.one/" :target "_blank"} "PROJECT"]
+     [:a {:href "https://staking.harmony.one/"  :target "_blank"} "STAKING"]
      [:p (format "%.6f" (@state :one-price)) " USD"]]
     [:button.navbar__togglr {:on-click #(swap! state assoc :navbar-open (not (@state :navbar-open)))}
      [:span.navbar__togglr__bars]
@@ -100,10 +100,11 @@
         price-inc (@state :price-inc)
         holding (@state :stake)
         time (@state :time)
+        type (@state :type)
 
         future-one-price (* (@state :one-price) (+ 1 (/ price-inc 100)))
 
-        fee (if (= (@state :type) "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
+        fee (if (= type "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
         network-share (/ (* fee holding) network-stake)
 
         first-m-inc (/ (* yearly-issuance network-share) 12) _ (swap! state assoc :first-m-inc first-m-inc)
@@ -135,8 +136,8 @@
        [:div.u-fillLeft_fitRight
         [:label "Stake"
          [:input {:type "range"
-                  :min 1
-                  :max 1000000
+                  :min (if (= type "delegator") 1 1000000)
+                  :max (if (= type "delegator") 1000000 50000000)
                   :value (@state :stake)
                   :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]
         [:div.showUnit.showUnit--one
@@ -153,7 +154,7 @@
        [num-input "Delegated" :delegated (when (= (@state :type) "delegator") "disabled") "showUnit showUnit--one"]
        [num-input "Uptime (AVG)" :uptime "disabled" "showUnit showUnit--percentage"]
        [num-input "Effective Median Stake" :median-stake "disabled" "showUnit showUnit--one"]
-       [num-input "Price Increase (Year)" :price-inc false "showUnit showUnit--percentage"]
+       [num-input "Price Increase" :price-inc false "showUnit showUnit--percentage"]
        [num-input "Total Stake" :network-stake false "showUnit showUnit--one"]]]
      [:div#earnings_chart.card
       [:h2.title "Earnings"]
@@ -180,7 +181,7 @@
        [:strong (pformat y-rate) "%"]]
       [:div.dataBlock
        [:p "Network Share"]
-       [:strong (format "%.3f" network-share) "%"]]
+       [:strong (format "%.4f" (* 100 network-share)) "%"]]
       [:div.dataBlock
        [:p "Current Holdings"]
        [:strong "$" (vformat holding-usd)]
