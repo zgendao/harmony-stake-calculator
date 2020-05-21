@@ -8,7 +8,8 @@
             [goog.string.format]))
 
 (def state (atom {:one-price 0
-                  :network-stake 1024015805
+                  :network-stake 0
+                  :median-stake 0
                   :type "delegator"
                   :restake? false
                   :stake 20000
@@ -17,33 +18,35 @@
                   :fee 10
                   :delegated 0
                   :uptime 99.9
-                  :median-stake 24000
-                  :price-inc 10
-                  :navbar-open false}))
+                  :price-inc 0
+                  :navbar-open false
+                  :first-m-inc
+                  :m-rate}))
 
 (defn- request []
   (go (let [stake-response (<! (http/post "https://api.s0.t.hmny.io" {:json-params {:jsonrpc "2.0" :method "hmy_getStakingNetworkInfo" :params [] :id 1} :with-credentials? false :headers {"Content-Type" "application/json"}}))
             price-response (<! (http/get "https://api.coingecko.com/api/v3/simple/price?ids=harmony&vs_currencies=usd" {:with-credentials? false :headers {"Content-Type" "application/json"}}))]
         (do (swap! state assoc :network-stake (Math/round (* 0.000000000000000001 (:total-staking (:result (stake-response :body))))))
+            (swap! state assoc :median-stake (Math/round (* 0.000000000000000001 (:median-raw-stake (:result (stake-response :body))))))
             (swap! state assoc :one-price (:usd (:harmony (:body price-response))))))))
 
 (defn chart-data [m-rate first-m-inc months]
-  (let [multiplier (+ 1  m-rate) stake (@state :stake) _ (println m-rate first-m-inc)]
+  (let [holding (@state :stake) multiplier (+ 1  m-rate)]
     (if (@state :restake?)
       (reduce
        (fn [v r] (conj v (* (last v) multiplier)))
-       [stake]
+       [holding]
        (range months))
       (reduce
        (fn [v r] (conj v (+ (last v) first-m-inc)))
-       [stake]
+       [holding]
        (range months)))))
 
-(defn chart-component [m-rate first-m-inc]
+(defn chart-component []
   (let [chartData {:xAxis {:categories []
                            :title {:text "Month"}}
                    :yAxis {:title {:text "Holding (ONE)"}}
-                   :series [{:data (chart-data m-rate first-m-inc (@state :time))}]
+                   :series [{:data (chart-data (@state :m-rate) (@state :first-m-inc) (@state :time))}]
                    :tooltip {:pointFormat "<b>{point.y:.2f}</b> ONE <br>"
                              :headerFormat ""}
                    :plotOptions {:series {:color "#00ADE8"}}
@@ -52,10 +55,10 @@
                    :title {:style {:display "none"}}}]
     (.chart highcharts "rev-chartjs" (clj->js chartData))))
 
-(defn stake-chart [m-rate first-m-inc]
+(defn stake-chart []
   (reagent/create-class
-   {:component-did-mount #(chart-component m-rate first-m-inc)
-    :component-did-update #(chart-component m-rate first-m-inc)
+   {:component-did-mount #(chart-component)
+    :component-did-update #(chart-component)
     :display-name "chartjs-component"
     :reagent-render (fn []
                       @state
@@ -91,36 +94,37 @@
      [:span.navbar__togglr__bars]]]])
 
 (defn dashboard []
-  (let [one-price (@state :one-price)
+  (let [yearly-issuance 441000000
+        one-price (@state :one-price)
         network-stake (@state :network-stake)
-        yearly-issuance 441000000
-
         price-inc (@state :price-inc)
         holding (@state :stake)
         time (@state :time)
 
+        future-one-price (* (@state :one-price) (+ 1 (/ price-inc 100)))
+
         fee (if (= (@state :type) "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
         network-share (/ (* fee holding) network-stake)
 
-        first-m-inc (/ (* yearly-issuance network-share) 12)
-        m-rate (/ first-m-inc holding)
+        first-m-inc (/ (* yearly-issuance network-share) 12) _ (swap! state assoc :first-m-inc first-m-inc)
+        m-rate (/ first-m-inc holding) _ (swap! state assoc :m-rate m-rate)
 
-        avg-m-inc (/ (- (reduce + (chart-data m-rate first-m-inc time)) (* holding (+ 1 time))) time)
-        y-inc (- (last (chart-data m-rate first-m-inc 12)) holding)
-        m-inc (/ y-inc 12)
+        m-inc (/ (- (last (chart-data m-rate first-m-inc time)) holding) time)
+        y-inc (* m-inc 12)
         d-inc (/ y-inc 365)
 
-        y-rate (/ y-inc (@state :stake))
+        y-rate (/ y-inc holding)
 
-        reward-value (* m-inc (@state :time))
-        reward-rate (/ reward-value (@state :stake))
+        reward-value (* m-inc time)
+        reward-rate (/ reward-value holding)
         reward-frequency-sec (/ 86400 d-inc)
 
-        d-inc-usd (* one-price d-inc)
-        m-inc-usd (* one-price m-inc)
-        y-inc-usd (* one-price y-inc)
+        d-inc-usd (* future-one-price d-inc)
+        m-inc-usd (* future-one-price m-inc)
+        y-inc-usd (* future-one-price y-inc)
         holding-usd (* one-price holding)
-        reward-value-usd (* one-price reward-value)]
+        future-holding-usd (* future-one-price holding)
+        reward-value-usd (+ (* future-one-price reward-value) (- future-holding-usd holding-usd))]
     [:main.container
      [:h2.title "Staking settings"]
      [:div#settings.card
@@ -143,7 +147,7 @@
      [:h2.title "Earnings"]
      [:div#earnings_chart.card
       [:div
-       [stake-chart m-rate first-m-inc]]
+       [stake-chart]]
       [:div.dataBlock
        [:p "Daily Income (AVG)"]
        [:strong "$" (vformat d-inc-usd)]
@@ -177,7 +181,7 @@
       [:div.dataBlock
        [:p "Reward Frequency"]
        [:strong (cond
-                  (> 8 reward-frequency-sec) "every 8 sec"
+                  (> 8 reward-frequency-sec) "8 sec"
                   (> 60 reward-frequency-sec) (str (format "%.1f" reward-frequency-sec) " sec")
                   (> 3600 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 60)) " min")
                   (> 86400 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 3600)) " hour")
