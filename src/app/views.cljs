@@ -7,14 +7,11 @@
             [goog.string :as gstring :refer [format]]
             [goog.string.format]))
 
-(def api (atom {:one-price 0
-                :network-stake 1024015805}))
-
 (def state (atom {:one-price 0
                   :network-stake 1024015805
                   :type "delegator"
                   :restake? false
-                  :stake 10000
+                  :stake 20000
                   :time 12
                   :restake true
                   :fee 10
@@ -30,23 +27,23 @@
         (do (swap! state assoc :network-stake (Math/round (* 0.000000000000000001 (:total-staking (:result (stake-response :body))))))
             (swap! state assoc :one-price (:usd (:harmony (:body price-response))))))))
 
-(defn chart-data [tochart months]
-  (let [multiplier (+ 1 (first tochart)) stake (@state :stake)]
+(defn chart-data [m-rate first-m-inc months]
+  (let [multiplier (+ 1  m-rate) stake (@state :stake) _ (println m-rate first-m-inc)]
     (if (@state :restake?)
       (reduce
        (fn [v r] (conj v (* (last v) multiplier)))
        [stake]
        (range months))
       (reduce
-       (fn [v r] (conj v (+ (last v) (second tochart))))
+       (fn [v r] (conj v (+ (last v) first-m-inc)))
        [stake]
        (range months)))))
 
-(defn chart-component [tochart]
+(defn chart-component [m-rate first-m-inc]
   (let [chartData {:xAxis {:categories []
                            :title {:text "Month"}}
                    :yAxis {:title {:text "Holding (ONE)"}}
-                   :series [{:data (chart-data tochart (@state :time))}]
+                   :series [{:data (chart-data m-rate first-m-inc (@state :time))}]
                    :tooltip {:pointFormat "<b>{point.y:.2f}</b> ONE <br>"
                              :headerFormat ""}
                    :plotOptions {:series {:color "#00ADE8"}}
@@ -55,10 +52,10 @@
                    :title {:style {:display "none"}}}]
     (.chart highcharts "rev-chartjs" (clj->js chartData))))
 
-(defn stake-chart [tochart]
+(defn stake-chart [m-rate first-m-inc]
   (reagent/create-class
-   {:component-did-mount #(chart-component tochart)
-    :component-did-update #(chart-component tochart)
+   {:component-did-mount #(chart-component m-rate first-m-inc)
+    :component-did-update #(chart-component m-rate first-m-inc)
     :display-name "chartjs-component"
     :reagent-render (fn []
                       @state
@@ -98,15 +95,18 @@
         network-stake (@state :network-stake)
         yearly-issuance 441000000
 
-        fee (if (= (@state :type) "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
-        network-share (/ (* fee (@state :stake)) network-stake)
+        price-inc (@state :price-inc)
         holding (@state :stake)
+        time (@state :time)
+
+        fee (if (= (@state :type) "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
+        network-share (/ (* fee holding) network-stake)
 
         first-m-inc (/ (* yearly-issuance network-share) 12)
-        m-rate (/ first-m-inc (@state :stake))
-        tochart [m-rate first-m-inc]
+        m-rate (/ first-m-inc holding)
 
-        y-inc (- (last (chart-data tochart 12)) holding)
+        avg-m-inc (/ (- (reduce + (chart-data m-rate first-m-inc time)) (* holding (+ 1 time))) time)
+        y-inc (- (last (chart-data m-rate first-m-inc 12)) holding)
         m-inc (/ y-inc 12)
         d-inc (/ y-inc 365)
 
@@ -138,12 +138,12 @@
        [num-input "Delegated (ONE)" :delegated (when (= (@state :type) "delegator") "disabled")]
        [num-input "Uptime (AVG) (%)" :uptime "disabled"]
        [num-input "Effective Median Stake (ONE)" :median-stake "disabled"]
-       [num-input "Price Increase (Year) (%)" :price-inc "disabled"]
+       [num-input "Price Increase (Year) (%)" :price-inc]
        [num-input "Total Stake (ONE)" :network-stake]]]
      [:h2.title "Earnings"]
      [:div#earnings_chart.card
       [:div
-       [stake-chart tochart]]
+       [stake-chart m-rate first-m-inc]]
       [:div.dataBlock
        [:p "Daily Income (AVG)"]
        [:strong "$" (vformat d-inc-usd)]
@@ -165,7 +165,7 @@
        [:strong (pformat y-rate) "%"]]
       [:div.dataBlock
        [:p "Network Share"]
-       [:strong (pformat network-share) "%"]]
+       [:strong (format "%.3f" network-share) "%"]]
       [:div.dataBlock
        [:p "Current Holdings"]
        [:strong "$" (vformat holding-usd)]
