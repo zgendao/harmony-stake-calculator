@@ -39,7 +39,6 @@
   nav .container {
     position: relative;
     flex-direction: column;
-    padding: 10px;
   }
   nav .navbar__brand {
     justify-content: left;

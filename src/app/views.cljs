@@ -82,8 +82,8 @@
   [:nav
    [:div.container
     [:div.navbar__brand
-     [:img {:src "./images/logo.png" :width "150px"}]
-     [:p "Calculator"]]
+     [:img {:src "./images/logo1.png" :width "25px"}]
+     [:p "Harmony Calculator"]]
     [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
      [:a {:href "https://harmony.one/" :target "_blank"} "PROJECT"]
      [:a {:href "https://staking.harmony.one/"  :target "_blank"} "STAKING"]
