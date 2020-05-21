@@ -136,12 +136,14 @@
         [:label "Stake"
          [:input {:type "range"
                   :min 1
-                  :max 1000000}]]
+                  :max 1000000
+                  :value (@state :stake)
+                  :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]
         [:div.showUnit.showUnit--one
          [:input {:type "number"
                   :min 1
                   :value (@state :stake)
-                  :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-:stake)))}]]]
+                  :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]]
        [num-input "Staking Time" :time false "showUnit showUnit--months"]
        [:div>label.switch "Auto restake"
         [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
