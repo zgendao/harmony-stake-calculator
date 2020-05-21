@@ -1,13 +1,18 @@
 (ns app.views
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent.core :as reagent :refer [atom]]
             ["highcharts" :as highcharts]
+            [cljs.core.async :refer [<!]]
+            [cljs-http.client :as http]
             [goog.string :as gstring :refer [format]]
             [goog.string.format]))
 
-(def api (atom {:one-price 0.00326
-                :network-stake 600000000}))
+(def api (atom {:one-price 0
+                :network-stake 1024015805}))
 
-(def state (atom {:type "delegator"
+(def state (atom {:one-price 0
+                  :network-stake 1024015805
+                  :type "delegator"
                   :restake? false
                   :stake 10000
                   :time 12
@@ -17,8 +22,13 @@
                   :uptime 99.9
                   :median-stake 24000
                   :price-inc 10
-                  :total-stake 60000000
                   :navbar-open false}))
+
+(defn- request []
+  (go (let [stake-response (<! (http/post "https://api.s0.t.hmny.io" {:json-params {:jsonrpc "2.0" :method "hmy_getStakingNetworkInfo" :params [] :id 1} :with-credentials? false :headers {"Content-Type" "application/json"}}))
+            price-response (<! (http/get "https://api.coingecko.com/api/v3/simple/price?ids=harmony&vs_currencies=usd" {:with-credentials? false :headers {"Content-Type" "application/json"}}))]
+        (do (swap! state assoc :network-stake (Math/round (* 0.000000000000000001 (:total-staking (:result (stake-response :body))))))
+            (swap! state assoc :one-price (:usd (:harmony (:body price-response))))))))
 
 (defn chart-data [tochart months]
   (let [multiplier (+ 1 (first tochart)) stake (@state :stake)]
@@ -47,12 +57,12 @@
 
 (defn stake-chart [tochart]
   (reagent/create-class
-   {:component-did-mount  #(chart-component tochart)
+   {:component-did-mount #(chart-component tochart)
     :component-did-update #(chart-component tochart)
-    :display-name        "chartjs-component"
-    :reagent-render      (fn []
-                           @state
-                           [:div#rev-chartjs {:style {:width "100%" :height "100%"}}])}))
+    :display-name "chartjs-component"
+    :reagent-render (fn []
+                      @state
+                      [:div#rev-chartjs {:style {:width "100%" :height "100%"}}])}))
 
 (defn num-input [label value disabled]
   [:div
@@ -75,17 +85,17 @@
      [:img {:src "./images/logo.png" :width "150px"}]
      [:p "Calculator"]]
     [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
-     [:a {:href "https://harmony.one/"} "PROJECT"]
-     [:a {:href "https://staking.harmony.one/"} "STAKING"]
-     [:p (str (@api :one-price)) "USD"]]
+     [:a {:href "https://harmony.one/" :target "_blank"} "PROJECT"]
+     [:a {:href "https://staking.harmony.one/" :target "_blank"} "STAKING"]
+     [:p (format "%.6f" (@state :one-price)) " USD"]]
     [:button.navbar__togglr {:on-click #(swap! state assoc :navbar-open (not (@state :navbar-open)))}
      [:span.navbar__togglr__bars]
      [:span.navbar__togglr__bars]
      [:span.navbar__togglr__bars]]]])
 
 (defn dashboard []
-  (let [one-price (@api :one-price)
-        network-stake (@api :network-stake)
+  (let [one-price (@state :one-price)
+        network-stake (@state :network-stake)
         yearly-issuance 441000000
 
         fee (if (= (@state :type) "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
@@ -104,7 +114,7 @@
 
         reward-value (* m-inc (@state :time))
         reward-rate (/ reward-value (@state :stake))
-        reward-frequency 0
+        reward-frequency-sec (/ 86400 d-inc)
 
         d-inc-usd (* one-price d-inc)
         m-inc-usd (* one-price m-inc)
@@ -129,21 +139,21 @@
        [num-input "Uptime (AVG) (%)" :uptime "disabled"]
        [num-input "Effective Median Stake (ONE)" :median-stake "disabled"]
        [num-input "Price Increase (Year) (%)" :price-inc "disabled"]
-       [num-input "Total Stake (ONE)" :total-stake "disabled"]]]
+       [num-input "Total Stake (ONE)" :network-stake]]]
      [:h2.title "Earnings"]
      [:div#earnings_chart.card
       [:div
        [stake-chart tochart]]
       [:div.dataBlock
-       [:p "Daily Income"]
+       [:p "Daily Income (AVG)"]
        [:strong "$" (vformat d-inc-usd)]
        [:p (vformat d-inc) " ONE"]]
       [:div.dataBlock
-       [:p "Monthly Income"]
+       [:p "Monthly Income (AVG)"]
        [:strong "$" (vformat m-inc-usd)]
        [:p (vformat m-inc) " ONE"]]
       [:div.dataBlock
-       [:p "Yearly Income"]
+       [:p "Yearly Income (AVG)"]
        [:strong "$" (vformat y-inc-usd)]
        [:p (vformat y-inc) " ONE"]]]
      [:div#earnings_more.card
@@ -166,9 +176,18 @@
        [:p (vformat reward-value) " ONE"]]
       [:div.dataBlock
        [:p "Reward Frequency"]
-       [:strong "- days"]]]]))
+       [:strong (cond
+                  (> 8 reward-frequency-sec) "every 8 sec"
+                  (> 60 reward-frequency-sec) (str (format "%.1f" reward-frequency-sec) " sec")
+                  (> 3600 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 60)) " min")
+                  (> 86400 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 3600)) " hour")
+                  (> 604800 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 86400)) " day")
+                  (> 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 604800)) " week")
+                  (< 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 18144000)) " month"))]]]]))
 
 (defn app []
+  (request)
+  ;(post-request)
   [:<>
    [navbar]
    [dashboard]])
