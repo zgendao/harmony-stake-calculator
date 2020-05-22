@@ -15,9 +15,9 @@
                   :stake 20000
                   :time 12
                   :restake true
-                  :fee 10
+                  :fee 5
                   :delegated 0
-                  :uptime 99.9
+                  :network-stake-inc 1
                   :price-inc 0
                   :navbar-open false
                   :first-m-inc
@@ -64,14 +64,15 @@
                       @state
                       [:div#rev-chartjs])}))
 
-(defn num-input [label value disabled class]
+(defn num-input [label value disabled max class]
   [:div {:class class}
    [:label label
     [:input {:type "number"
              :disabled disabled
              :min 1
+             :max nil
              :value (@state value)
-             :on-change #(swap! state assoc value (js/parseInt (-> % .-target .-value)))}]]])
+             :on-change #(swap! state assoc value (-> % .-target .-value))}]]])
 
 (defn vformat [value]
   (if (< 100 value) (format "%.0f" value) (format "%.2f" value)))
@@ -103,9 +104,10 @@
         type (@state :type)
 
         future-one-price (* (@state :one-price) (+ 1 (/ price-inc 100)))
-
         fee (if (= type "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
-        network-share (/ (* fee holding) network-stake)
+
+        avg-network-stake (/ (reduce + (reduce (fn [v r] (conj v (* (last v) (+ 1 (/ (@state :network-stake-inc) 100))))) [network-stake] (range time))) time)
+        network-share (/ (* fee holding) avg-network-stake)
 
         first-m-inc (/ (* yearly-issuance network-share) 12) _ (swap! state assoc :first-m-inc first-m-inc)
         m-rate (/ first-m-inc holding) _ (swap! state assoc :m-rate m-rate)
@@ -145,17 +147,17 @@
                   :min 1
                   :value (@state :stake)
                   :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]]
-       [num-input "Staking Time" :time false "showUnit showUnit--months"]
+       [num-input "Staking Time" :time false false "showUnit showUnit--months"]
        [:div>label.switch "Auto restake"
         [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
         [:span.slider]]
        [:h3.title.title--secondary "Advanced"]
-       [num-input "Fee" :fee false "showUnit showUnit--percentage"]
-       [num-input "Delegated" :delegated (when (= (@state :type) "delegator") "disabled") "showUnit showUnit--one"]
-       [num-input "Uptime (AVG)" :uptime "disabled" "showUnit showUnit--percentage"]
-       [num-input "Effective Median Stake" :median-stake "disabled" "showUnit showUnit--one"]
-       [num-input "Price Increase" :price-inc false "showUnit showUnit--percentage"]
-       [num-input "Total Stake" :network-stake false "showUnit showUnit--one"]]]
+       [num-input "Fee" :fee false 100 "showUnit showUnit--percentage"]
+       [num-input "Delegated" :delegated (when (= (@state :type) "delegator") "disabled") false "showUnit showUnit--one"]
+       [num-input "Price Increase" :price-inc false false "showUnit showUnit--percentage"]
+       [num-input "Effective Median Stake" :median-stake "disabled" false "showUnit showUnit--one"]
+       [num-input "Total Stake Increase (Monthly)" :network-stake-inc false 100 "showUnit showUnit--percentage"]
+       [num-input "Total Stake" :network-stake false false "showUnit showUnit--one"]]]
      [:div#earnings_chart.card
       [:h2.title "Earnings"]
       [:div#earnings_chart__chartWrapper
