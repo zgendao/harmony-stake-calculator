@@ -35,10 +35,11 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
   }
-  
+
   nav .container {
     position: relative;
     flex-direction: column;
+    padding: 10px;
   }
   nav .navbar__brand {
     justify-content: left;
@@ -50,7 +51,7 @@
   nav a, nav p {
     padding: 10px 0;
   }
-    
+
   nav .navbar__togglr {
     display: block;
     position: absolute;
