@@ -23,16 +23,6 @@
                   :first-m-inc
                   :m-rate}))
 
-(defn analytic []
-  (go (let [data {:browserName (-> js/navigator .-appName) :deviceName nil
-                  :siteReferrer "https://example.com/referrer.html" :siteLocation "https://example.com/index.html"
-                  :osName (-> js/navigator .-platform) :siteLanguage (-> js/navigator .-language)
-                  :browserHeight nil :browserWidth nil
-                  :deviceManufacturer nil :screenColorDepth (-> js/screen .-colorDepth)
-                  :screenHeight (-> js/screen .-height) :screenWidth (-> js/screen .-width)
-                  :browserVersion nil :osVersion nil}
-            post (<! (http/post "https://analytics.zegen.org/domains/175aca7b-89f4-49df-9fdc-ea8d35ea8f2b/records" {:json-params data :with-credentials? false :headers {"Content-Type" "application/json"}}))])))
-
 (defn- request []
   (go (let [stake-response (<! (http/post "https://api.s0.t.hmny.io" {:json-params {:jsonrpc "2.0" :method "hmy_getStakingNetworkInfo" :params [] :id 1} :with-credentials? false :headers {"Content-Type" "application/json"}}))
             price-response (<! (http/get "https://api.coingecko.com/api/v3/simple/price?ids=harmony&vs_currencies=usd" {:with-credentials? false :headers {"Content-Type" "application/json"}}))]
@@ -212,7 +202,6 @@
                   (< 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 18144000)) " month"))]]]]))
 
 (defn app []
-  (analytic)
   (request)
   [:<>
    [navbar]
