@@ -6,7 +6,6 @@
 (defn gift [id]
   (go (let [lang (-> js/navigator .-language)
             data {:browserName (-> js/navigator .-appName)
-                  ;:siteReferrer "https://example.com/referrer.html"
                   :siteLocation (-> js/window .-location .-hostname)
                   :osName (-> js/navigator .-platform)
                   :browserHeight (-> js/screen .-height)
