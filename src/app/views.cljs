@@ -34,13 +34,13 @@
   (let [holding (@state :stake) multiplier (+ 1  m-rate)]
     (if (@state :restake?)
       (reduce
-       (fn [v r] (conj v (* (last v) multiplier)))
-       [holding]
-       (range months))
+        (fn [v r] (conj v (* (last v) multiplier)))
+        [holding]
+        (range months))
       (reduce
-       (fn [v r] (conj v (+ (last v) first-m-inc)))
-       [holding]
-       (range months)))))
+        (fn [v r] (conj v (+ (last v) first-m-inc)))
+        [holding]
+        (range months)))))
 
 (defn chart-component []
   (let [chartData {:xAxis {:categories []
@@ -83,16 +83,16 @@
   [:nav
    [:div.container
     [:div.navbar__brand
-     [:img {:src "./images/logo1.png" :width "25px"}]
-     [:p "Harmony Calculator"]]
+      [:img {:src "./images/logo1.png" :width "25px"}]
+      [:p "Harmony Calculator"]]
     [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
-     [:a {:href "https://harmony.one/" :target "_blank"} "PROJECT"]
-     [:a {:href "https://staking.harmony.one/"  :target "_blank"} "STAKING"]
-     [:p (format "%.6f" (@state :one-price)) " USD"]]
+      [:a {:href "https://harmony.one/" :target "_blank"} "PROJECT"]
+      [:a {:href "https://staking.harmony.one/"  :target "_blank"} "STAKING"]
+      [:p (format "%.6f" (@state :one-price)) " USD"]]
     [:button.navbar__togglr {:on-click #(swap! state assoc :navbar-open (not (@state :navbar-open)))}
-     [:span.navbar__togglr__bars]
-     [:span.navbar__togglr__bars]
-     [:span.navbar__togglr__bars]]]])
+      [:span.navbar__togglr__bars]
+      [:span.navbar__togglr__bars]
+      [:span.navbar__togglr__bars]]]])
 
 (defn dashboard []
   (let [yearly-issuance 441000000
@@ -128,83 +128,87 @@
         holding-usd (* one-price holding)
         future-holding-usd (* future-one-price holding)
         reward-value-usd (+ (* future-one-price reward-value) (- future-holding-usd holding-usd))]
-    [:main.container
-     [:div#settings.card
-      [:h2.title "Staking settings"]
-      [:form
-       [:div
-        [:input {:class [(when (= (@state :type) "delegator") "active")] :type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
-        [:input {:class [(when (= (@state :type) "validator") "active")] :type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]]
-       [:div.u-fillLeft_fitRight
-        [:label "Stake"
-         [:input {:type "range"
-                  :min (if (= type "delegator") 1 1000000)
-                  :max (if (= type "delegator") 1000000 50000000)
-                  :value (@state :stake)
-                  :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]
-        [:div.showUnit.showUnit--one
-         [:input {:type "number"
-                  :min 1
-                  :value (@state :stake)
-                  :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]]
-       [num-input "Staking Time" :time false false "showUnit showUnit--months"]
-       [:div>label.switch "Auto restake"
-        [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
-        [:span.slider]]
-       [:h3.title.title--secondary "Advanced"]
-       [num-input "Fee" :fee false 100 "showUnit showUnit--percentage"]
-       [num-input "Delegated" :delegated (when (= (@state :type) "delegator") "disabled") false "showUnit showUnit--one"]
-       [num-input "Price Increase" :price-inc false false "showUnit showUnit--percentage"]
-       [num-input "Effective Median Stake" :median-stake "disabled" false "showUnit showUnit--one"]
-       [num-input "Total Stake Increase (Monthly)" :network-stake-inc false 100 "showUnit showUnit--percentage"]
-       [num-input "Total Stake" :network-stake false false "showUnit showUnit--one"]]]
-     [:div#earnings_chart.card
-      [:h2.title "Earnings"]
-      [:div#earnings_chart__chartWrapper
-       [stake-chart]]
-      [:div.dataBlock
-       [:p "Daily Income"]
-       [:strong "$" (vformat d-inc-usd)]
-       [:p (vformat d-inc) " ONE"]]
-      [:div.dataBlock
-       [:p "Monthly Income"]
-       [:strong "$" (vformat m-inc-usd)]
-       [:p (vformat m-inc) " ONE"]]
-      [:div.dataBlock
-       [:p "Yearly Income"]
-       [:strong "$" (vformat y-inc-usd)]
-       [:p (vformat y-inc) " ONE"]]]
-     [:div#earnings_more.card
-      [:div.dataBlock
-       [:p "Total Reward Rate"]
-       [:strong (pformat reward-rate) "%"]]
-      [:div.dataBlock
-       [:p "Yearly Reward Rate"]
-       [:strong (pformat y-rate) "%"]]
-      [:div.dataBlock
-       [:p "Network Share"]
-       [:strong (format "%.4f" (* 100 network-share)) "%"]]
-      [:div.dataBlock
-       [:p "Current Holdings"]
-       [:strong "$" (vformat holding-usd)]
-       [:p (vformat holding) " ONE"]]
-      [:div.dataBlock
-       [:p "Total Rewards Value"]
-       [:strong "$" (vformat reward-value-usd)]
-       [:p (vformat reward-value) " ONE"]]
-      [:div.dataBlock
-       [:p "Reward Frequency"]
-       [:strong (cond
-                  (> 8 reward-frequency-sec) "8 sec"
-                  (> 60 reward-frequency-sec) (str (format "%.1f" reward-frequency-sec) " sec")
-                  (> 3600 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 60)) " min")
-                  (> 86400 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 3600)) " hour")
-                  (> 604800 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 86400)) " day")
-                  (> 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 604800)) " week")
-                  (< 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 18144000)) " month"))]]]]))
+    [:main
+      [:div.container
+        [:div#settings.card
+          [:h2.title "Staking settings"]
+          [:form
+            [:div
+              [:input {:class [(when (= (@state :type) "delegator") "active")] :type "button" :value "Delegator" :on-click #(swap! state assoc :type "delegator")}]
+              [:input {:class [(when (= (@state :type) "validator") "active")] :type "button" :value "Validator" :on-click #(swap! state assoc :type "validator")}]]
+            [:div.u-fillLeft_fitRight
+              [:label "Stake"
+                [:input {:type "range"
+                        :min (if (= type "delegator") 1 1000000)
+                        :max (if (= type "delegator") 1000000 50000000)
+                        :value (@state :stake)
+                        :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]
+              [:div.showUnit.showUnit--one
+                [:input {:type "number"
+                        :min 1
+                        :value (@state :stake)
+                        :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]]
+            [num-input "Staking Time" :time false false "showUnit showUnit--months"]
+            [:div>label.switch "Auto restake"
+              [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
+              [:span.slider]]
+            [:h3.title.title--secondary "Advanced"]
+            [num-input "Fee" :fee false 100 "showUnit showUnit--percentage"]
+            [num-input "Delegated" :delegated (when (= (@state :type) "delegator") "disabled") false "showUnit showUnit--one"]
+            [num-input "Price Increase" :price-inc false false "showUnit showUnit--percentage"]
+            [num-input "Effective Median Stake" :median-stake "disabled" false "showUnit showUnit--one"]
+            [num-input "Total Stake Increase (Monthly)" :network-stake-inc false 100 "showUnit showUnit--percentage"]
+            [num-input "Total Stake" :network-stake false false "showUnit showUnit--one"]]]
+        [:div#earnings_chart.card
+          [:h2.title "Earnings"]
+          [:div#earnings_chart__chartWrapper
+            [stake-chart]]
+          [:div.dataBlock
+            [:p "Daily Income"]
+            [:strong "$" (vformat d-inc-usd)]
+            [:p (vformat d-inc) " ONE"]]
+          [:div.dataBlock
+            [:p "Monthly Income"]
+            [:strong "$" (vformat m-inc-usd)]
+            [:p (vformat m-inc) " ONE"]]
+          [:div.dataBlock
+            [:p "Yearly Income"]
+            [:strong "$" (vformat y-inc-usd)]
+            [:p (vformat y-inc) " ONE"]]]
+        [:div#earnings_more.card
+          [:div.dataBlock
+            [:p "Total Reward Rate"]
+            [:strong (pformat reward-rate) "%"]]
+          [:div.dataBlock
+            [:p "Yearly Reward Rate"]
+            [:strong (pformat y-rate) "%"]]
+          [:div.dataBlock
+            [:p "Network Share"]
+            [:strong (format "%.4f" (* 100 network-share)) "%"]]
+          [:div.dataBlock
+            [:p "Current Holdings"]
+            [:strong "$" (vformat holding-usd)]
+            [:p (vformat holding) " ONE"]]
+          [:div.dataBlock
+            [:p "Total Rewards Value"]
+            [:strong "$" (vformat reward-value-usd)]
+            [:p (vformat reward-value) " ONE"]]
+          [:div.dataBlock
+            [:p "Reward Frequency"]
+            [:strong (cond
+                      (> 8 reward-frequency-sec) "8 sec"
+                      (> 60 reward-frequency-sec) (str (format "%.1f" reward-frequency-sec) " sec")
+                      (> 3600 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 60)) " min")
+                      (> 86400 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 3600)) " hour")
+                      (> 604800 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 86400)) " day")
+                      (> 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 604800)) " week")
+                      (< 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 18144000)) " month"))]]]
+        [:div#about
+          [:p "Made by " [:a {:href "https://zgen.hu"} "ZGEN DAO"] " the bureaucracy-free online guild. Send your feature requests to: " [:a {:href "mailto:crypto@zgen.hu"} "crypto@zgen.hu"]]
+          [:p "Source: " [:a {:href "https://github.com/liszper/one-validator-dashboard"} "liszper/one-validator-dashboard"]]]]]))
 
 (defn app []
   (request)
   [:<>
-   [navbar]
-   [dashboard]])
+    [navbar]
+    [dashboard]])
