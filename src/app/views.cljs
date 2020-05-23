@@ -70,8 +70,8 @@
     [:input {:type "number"
              :disabled disabled
              :min 1
-             :max nil
-             :value (@state value)
+             :max 100
+             :value (if max (min max (@state value)) (@state value))
              :on-change #(swap! state assoc value (-> % .-target .-value))}]]])
 
 (defn vformat [value]
@@ -147,7 +147,7 @@
                   :min 1
                   :value (@state :stake)
                   :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]]
-       [num-input "Staking Time" :time false false "showUnit showUnit--months"]
+       [num-input "Staking Time" :time false 120 "showUnit showUnit--months"]
        [:div>label.switch "Auto restake"
         [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
         [:span.slider]]
