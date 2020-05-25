@@ -33,15 +33,15 @@
   .container {
     max-width: 540px;
   }
-  main {
+  main > .container {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    gap: 20px 0;
   }
 
   nav .container {
     position: relative;
     flex-direction: column;
-    padding: 10px;
+    padding: 10px 20px;
   }
   nav .navbar__brand {
     justify-content: left;
@@ -80,15 +80,76 @@
     grid-column: 1;
     grid-row: unset;
   }
+
+  #earnings_chart {
+    background: white;
+    gap: 10px 0;
+    padding: 10px 0;
+    position: sticky;
+    bottom: -215px;
+    box-shadow: 0 0 10px var(--border-color);
+    transition: bottom .3s ease-in-out;
+  }
+  #earnings_chart.earnings_chart--showChart {
+    bottom: -10px;
+  }
+  #earnings_chart .title {
+    display: none;
+  }
+  #earnings_chart .dataBlock {
+    text-align: center;
+    grid-row: 1;
+  }
+  #rev-chartjs {
+    height: 200px;
+    margin-top: 10px;
+  }
+
+  .dataBlock p, label {
+    font-size: 12px;
+  }
+
+  #about {
+    flex-direction: column;
+    margin: 20px;
+  }
 }
 
 @media (max-width: 575px) {
+  body {
+    background: #fafafa;
+  }
+
   .container {
     max-width: unset;
   }
 
   .card {
+    border: none;
     border-radius: 0;
-    padding: 10px 20px;
+    padding: 20px;
+  }
+
+  main > .container {
+    gap: 0;
+    padding: 0;
+  }
+
+  #settings {
+    margin: 20px 0;
+    background: none;
+  }
+
+  #earnings_chart {
+    box-shadow: 0 -10px 10px -10px var(--border-color);
+  }
+
+  #earnings_more {
+    padding-top: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 10px -10px var(--border-color);
+  }
+  #earnings_more .dataBlock {
+    box-shadow: none;
   }
 }

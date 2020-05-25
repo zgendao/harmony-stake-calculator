@@ -20,6 +20,7 @@
                   :network-stake-inc 1
                   :price-inc 0
                   :navbar-open false
+                  :chart-open false
                   :first-m-inc
                   :m-rate}))
 
@@ -163,19 +164,19 @@
         [num-input "Effective Median Stake" :median-stake "disabled" false "showUnit showUnit--one"]
         [num-input "Total Stake Increase (Monthly)" :network-stake-inc false 100 "showUnit showUnit--percentage"]
         [num-input "Total Stake" :network-stake false false "showUnit showUnit--one"]]]
-      [:div#earnings_chart.card
+      [:div#earnings_chart.card {:class [(when (@state :chart-open) "earnings_chart--showChart")]}
        [:h2.title "Earnings"]
        [:div#earnings_chart__chartWrapper
         [stake-chart]]
-       [:div.dataBlock
+       [:div.dataBlock {:on-click #(swap! state assoc :chart-open (not (@state :chart-open)))}
         [:p "Daily Income"]
         [:strong "$" (vformat d-inc-usd)]
         [:p (vformat d-inc) " ONE"]]
-       [:div.dataBlock
+       [:div.dataBlock {:on-click #(swap! state assoc :chart-open (not (@state :chart-open)))}
         [:p "Monthly Income"]
         [:strong "$" (vformat m-inc-usd)]
         [:p (vformat m-inc) " ONE"]]
-       [:div.dataBlock
+       [:div.dataBlock {:on-click #(swap! state assoc :chart-open (not (@state :chart-open)))}
         [:p "Yearly Income"]
         [:strong "$" (vformat y-inc-usd)]
         [:p (vformat y-inc) " ONE"]]]
