@@ -210,8 +210,8 @@
                    (< 18144000 reward-frequency-sec) (str (format "%.1f"  (/ reward-frequency-sec 18144000)) " month"))]]]
       [:div#about
        [:p "Made by " [:a {:href "https://zgen.hu"} "ZGEN DAO"] " the bureaucracy-free online guild."]
-       [:p "Send your feature requests to: " [:a {:href "mailto:crypto@zgen.hu"} "crypto@zgen.hu"]]
-       [:p "Source: " [:a {:href "https://github.com/liszper/one-validator-dashboard"} "liszper/one-validator-dashboard"]]]]]))
+       [:p "Send your feature requests to: " [:a {:href "mailto:contact@zgen.hu"} "crypto@zgen.hu"]]
+       [:p "Source: " [:a {:href "https://github.com/zgendao/harmony-stake-calculator"} "liszper/one-validator-dashboard"]]]]]))
 
 (defn app []
   (request)
