@@ -10,6 +10,7 @@ input {
   padding: 0 15px;
   margin: 5px 0;
   outline: none;
+  -webkit-appearance: none;
 }
 input[type="number"]:focus {
   border-width: 1.5px;
@@ -24,7 +25,7 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
-  
+
 input[type="button"] {
   width: 50%;
   background-color: white;
@@ -49,11 +50,11 @@ input[type="range"] {
   height: 5px;
   padding: 0;
   margin: 20px 0;
-  border-radius: 5px;  
+  border-radius: 5px;
   background: #d3d3d3;
   outline: none !important;
 }
-  
+
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;

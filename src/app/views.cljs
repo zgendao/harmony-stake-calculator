@@ -162,8 +162,8 @@
         [num-input "Delegated" :delegated (when (= type "delegator") "disabled") false "showUnit showUnit--one"]
         [num-input "Price Increase" :price-inc false false "showUnit showUnit--percentage"]
         [num-input "Effective Median Stake" :median-stake "disabled" false "showUnit showUnit--one"]
-        [num-input "Total Stake Increase (Monthly)" :network-stake-inc false 100 "showUnit showUnit--percentage"]
-        [num-input "Total Stake" :network-stake false false "showUnit showUnit--one"]]]
+        [num-input "Network Stake Increase (Month)" :network-stake-inc false 100 "showUnit showUnit--percentage"]
+        [num-input "Network Stake" :network-stake false false "showUnit showUnit--one"]]]
       [:div#earnings_chart.card {:class [(when (@state :chart-open) "earnings_chart--showChart")]}
        [:h2.title "Earnings"]
        [:div#earnings_chart__chartWrapper
