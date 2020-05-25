@@ -72,7 +72,7 @@
              :disabled disabled
              :min 1
              :value (if max (min max (@state value)) (@state value))
-             :on-change #(swap! state assoc value (-> % .-target .-value))}]]])
+             :on-change #(swap! state assoc value (js/parseInt (-> % .-target .-value)))}]]])
 
 (defn vformat [value]
   (if (< 100 value) (format "%.0f" value) (format "%.2f" value)))
@@ -106,7 +106,7 @@
         future-one-price (* (@state :one-price) (+ 1 (/ price-inc 100)))
         fee (if (= type "delegator") (- 1 (/ (@state :fee) 100)) (+ 1 (/ (* (@state :delegated) (/ (@state :fee) 100)) (@state :stake))))
 
-        avg-network-stake (/ (reduce + (reduce (fn [v r] (conj v (* (last v) (+ 1 (/ (@state :network-stake-inc) 100))))) [network-stake] (range time))) time)
+        avg-network-stake (/ (reduce + (reduce (fn [v r] (conj v (* (last v) (+ 1 (/ (@state :network-stake-inc) 100))))) [network-stake] (range time))) (inc time))
         network-share (/ (* fee holding) avg-network-stake)
 
         first-m-inc (/ (* yearly-issuance network-share) 12) _ (swap! state assoc :first-m-inc first-m-inc)
