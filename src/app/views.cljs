@@ -66,8 +66,8 @@
                       [:div#rev-chartjs])}))
 
 (defn num-input [label value disabled max class]
-  [:div {:class class}
-   [:label label
+  [:div 
+   [:label {:class class} label
     [:input {:type "number"
              :disabled disabled
              :min 1
@@ -83,11 +83,12 @@
   [:nav
    [:div.container
     [:div.navbar__brand
-     [:img {:src "./images/logo1.png" :width "25px"}]
-     [:p "Harmony Calculator"]]
+     [:a {:href "https://harmony.one/" :target "_blank"}
+      [:img {:src "./images/logo1.png" :width "25px"}]
+      [:p "Harmony Calculator"]]]
     [:div.collapse {:class [(when (not (@state :navbar-open)) "u-hideOnMobile")]}
-     [:a {:href "https://harmony.one/" :target "_blank"} "PROJECT"]
      [:a {:href "https://staking.harmony.one/"  :target "_blank"} "STAKING"]
+     [:a {:href "https://docs.harmony.one/home/validators"  :target "_blank"} "BECOME A VALIDATOR"]
      [:p (format "%.6f" (@state :one-price)) " USD"]]
     [:button.navbar__togglr {:on-click #(swap! state assoc :navbar-open (not (@state :navbar-open)))}
      [:span.navbar__togglr__bars]
@@ -148,11 +149,12 @@
                    :max (if (= type "delegator") del-max val-max)
                    :value holding
                    :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]
-         [:div.showUnit.showUnit--one
-          [:input {:type "number"
-                   :min 1
-                   :value holding
-                   :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]]
+         [:div
+          [:label.showUnit.showUnit--one
+            [:input {:type "number"
+                     :min 1
+                     :value holding
+                     :on-change #(swap! state assoc :stake (js/parseInt (-> % .-target .-value)))}]]]]
         [num-input "Staking Time" :time false 120 "showUnit showUnit--months"]
         [:div>label.switch "Auto restake"
          [:input#autorestake {:type "checkbox" :checked (@state :restake?) :on-click #(swap! state assoc :restake? (not (@state :restake?)))}]
@@ -162,7 +164,7 @@
         [num-input "Delegated" :delegated (when (= type "delegator") "disabled") false "showUnit showUnit--one"]
         [num-input "Price Increase" :price-inc false false "showUnit showUnit--percentage"]
         [num-input "Effective Median Stake" :median-stake "disabled" false "showUnit showUnit--one"]
-        [num-input "Network Stake Increase (Month)" :network-stake-inc false 100 "showUnit showUnit--percentage"]
+        [num-input "Monthly Network Increase" :network-stake-inc false 100 "showUnit showUnit--percentage"]
         [num-input "Network Stake" :network-stake false false "showUnit showUnit--one"]]]
       [:div#earnings_chart.card {:class [(when (@state :chart-open) "earnings_chart--showChart")]}
        [:h2.title "Earnings"]
@@ -211,7 +213,7 @@
       [:div#about
        [:p "Made by " [:a {:href "https://zgen.hu"} "ZGEN DAO"] " the bureaucracy-free online guild."]
        [:p "Send your feature requests to: " [:a {:href "mailto:contact@zgen.hu"} "crypto@zgen.hu"]]
-       [:p "Source: " [:a {:href "https://github.com/zgendao/harmony-stake-calculator"} "liszper/one-validator-dashboard"]]]]]))
+       [:p "Source: " [:a {:href "https://github.com/zgendao/harmony-stake-calculator"} "zgendao/harmony-stake-calculator"]]]]]))
 
 (defn app []
   (request)

@@ -75,16 +75,12 @@ input[type="range"]::-moz-range-thumb {
 .showUnit {
   position: relative;
 }
-.showUnit input {
-  padding-right: 30px;
-}
 .showUnit::after {
   content: '';
   position: absolute;
-  bottom: 5px;
+  bottom: 0;
   right: 15px;
   font-size: 14px;
-  line-height: 3.3;
 }
 .showUnit.showUnit--one::after {
   content: 'ONE';

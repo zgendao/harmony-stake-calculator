@@ -8,6 +8,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -41,15 +42,19 @@ a, nav a {
   text-decoration: none;
 }
 
+nav .navbar__brand a {
+  margin: 0;
+  display: flex;
+  padding: 0;
+}
 nav .navbar__brand img {
-  margin: auto 0;
+  margin: auto;
   margin-right: 10px;
 }
 nav .navbar__brand p {
   font-weight: 600;
   font-size: 23px;
   margin: auto 0;
-  display: inline-flex;
 }
 nav .navbar__togglr {
   display: none;
@@ -143,7 +148,7 @@ main > .container {
 }
 #earnings_more .dataBlock {
   text-align: center;
-  padding: 5px;
+  padding: 5px 0;
   box-shadow: 1px 0 0 0 var(--border-color),
               0 1px 0 0 var(--border-color);
 }
@@ -154,7 +159,7 @@ main > .container {
   display: flex;
   align-items: flex-end;
 }
-.u-fillLeft_fitRight label {
+.u-fillLeft_fitRight > label {
   width: -webkit-fill-available;
   margin-right: 15px;
 }

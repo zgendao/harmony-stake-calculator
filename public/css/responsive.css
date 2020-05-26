@@ -11,7 +11,7 @@
 }
 @media (max-width: 992px) {
   .container {
-    max-width: 720px;
+    max-width: 780px;
   }
   #earnings_chart {
     grid-template-columns: 1fr 1fr 1fr;
@@ -28,8 +28,13 @@
   #rev-chartjs {
     height: 250px;
   }
+  
+  #about {
+    flex-direction: column;
+    margin: 20px;
+  }
 }
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .container {
     max-width: 540px;
   }
@@ -108,11 +113,6 @@
   .dataBlock p, label {
     font-size: 12px;
   }
-
-  #about {
-    flex-direction: column;
-    margin: 20px;
-  }
 }
 
 @media (max-width: 575px) {
@@ -145,11 +145,14 @@
   }
 
   #earnings_more {
-    padding-top: 10px;
+    padding: 10px 0;
     margin-bottom: 10px;
     box-shadow: 0 10px 10px -10px var(--border-color);
   }
   #earnings_more .dataBlock {
     box-shadow: none;
+  }
+  #earnings_more .dataBlock strong {
+    font-size: 20px;
   }
 }
