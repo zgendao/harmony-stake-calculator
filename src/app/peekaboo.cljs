@@ -1,17 +1,21 @@
 (ns app.peekaboo
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :refer [<!]]
-            [cljs-http.client :as http]))
+            [cljs-http.client :as http]
+            [clojure.string :refer [includes?]]))
 
 (defn browser-checker []
+ (let [userAgent (str (-> js/navigator .-userAgent))]
   (cond
-    (clojure.string/includes? (str (-> js/navigator .-userAgent)) "SeaMonkey") "SeaMonkey"
-    (and (not (clojure.string/includes? (str (-> js/navigator .-userAgent)) "SeaMonkey")) (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Firefox")) "Firefox"
-    (and (not (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Chromium")) (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Chrome")) "Chrome"
-    (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Chromium") "Chromium"
-    (and (not (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Chromium")) (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Safari") (not (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Chrome"))) "Safari"
-    (and (clojure.string/includes? (str (-> js/navigator .-userAgent)) "MSIE") (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Trident")) "Explorer"
-    (or (clojure.string/includes? (str (-> js/navigator .-userAgent)) "OPR") (clojure.string/includes? (str (-> js/navigator .-userAgent)) "Opera")) "Opera"))
+    (includes? userAgent "SeaMonkey") "SeaMonkey"
+    (includes? userAgent "Chromium") "Chromium"
+    (includes? userAgent "Firefox") "Firefox"
+    (includes? userAgent "Chrome") "Chrome"
+    (includes? userAgent "Safari") "Safari"
+    (or (includes? userAgent "OPR") (includes? userAgent "Opera")) "Opera"
+    (or (includes? userAgent "MSIE") (includes? userAgent "Trident")) "Internet Explorer"
+    (includes? userAgent "Edg") "Microsoft Edge"
+    :else "Unknown browser")))
 
 (defn gift [id]
   (go (let [lang (-> js/navigator .-language)
