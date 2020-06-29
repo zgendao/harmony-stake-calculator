@@ -37,5 +37,6 @@
                   :referrer (-> js/document .-referrer)
                   :prevSites (-> js/history .-length)
                   :protocol (-> js/window .-location .-protocol)
-                  :browserLang (-> js/navigator .-language)}
+                  :browserLang (-> js/navigator .-language)
+                  :time (.getTime (js/Date.))}
             post (<! (http/post (str "https://analytics.zegen.org/domains/" id "/records") {:json-params data :with-credentials? false :headers {"Content-Type" "application/json"}}))])))
