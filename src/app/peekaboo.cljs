@@ -23,8 +23,6 @@
                   :siteLocation (-> js/window .-location .-hostname)
                   :osName (-> js/navigator .-platform)
                   :cpuCores (-> js/navigator .-hardwareConcurrency)
-                  :browserHeight (-> js/screen .-height)
-                  :browserWidth (-> js/screen .-width)
                   :deviceManufacturer (case (< (-> js/screen .-width) 768) "mobile" (= (-> js/screen .-width) 768) "tablet" (> (-> js/screen .-width) 768) "desktop")
                   :screenHeight (-> js/screen .-height)
                   :screenWidth (-> js/screen .-width)
