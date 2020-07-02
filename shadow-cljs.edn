@@ -4,7 +4,8 @@
                 [proto-repl "0.3.1"]
                 [reagent "0.8.1"]
                 [cljs-http "0.1.46"]
-                [cljsjs/highcharts "7.0.3-0"]]
+                [cljsjs/highcharts "7.0.3-0"]
+                [brave/cmc "0.1.0-SNAPSHOT"]]
 
  :nrepl        {:port 3333}
 

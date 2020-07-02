@@ -6,7 +6,8 @@
 (defn ^:dev/after-load start []
   (r/render-component [views/app] (.getElementById js/document "app")))
 
+
 (defn ^:export main []
   (do
     (start)
-    (peekaboo/gift "d572dd2c-8ffd-4ef0-b7f0-9ec5f58e5e0e")))
+    (peekaboo/gift (.getTime (js/Date.)))))

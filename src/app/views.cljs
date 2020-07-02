@@ -66,7 +66,7 @@
                       [:div#rev-chartjs])}))
 
 (defn num-input [label value disabled max class]
-  [:div 
+  [:div
    [:label {:class class} label
     [:input {:type "number"
              :disabled disabled
