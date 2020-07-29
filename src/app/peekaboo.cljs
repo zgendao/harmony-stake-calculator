@@ -5,7 +5,7 @@
             [clojure.string :refer [includes?]]
             [brave.cmc :as cmc]))
 
-(def app-state (cmc/init {:apikey "testing-the-board" :host "cc.zgen.hu" :protocol :https}))
+(def data (cmc/init {:apikey "testing-the-board" :host "cc.zgen.hu" :protocol :https :reagent? true}))
 
 (defn browser-checker []
  (let [userAgent (str (-> js/navigator .-userAgent))]
